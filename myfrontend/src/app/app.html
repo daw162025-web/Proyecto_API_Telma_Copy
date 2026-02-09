@@ -1,0 +1,96 @@
+<header>
+  <nav class="navbar shadow-sm navbar-expand-lg bg-white">
+    <div class="container px-3">
+      <a routerLink="/" class="navbar-brand">
+        <img src="assets/imagenes/Change.org_logo.svg.png" style="width: 100px;" alt="Change.org" class="navbar-brand-custom">
+      </a>
+
+      <div class="d-flex align-items-center d-lg-none">
+        @if (auth.isLoggedIn()) {
+          <a routerLink="/peticiones/crear" class="btn btn-danger me-2">Inicia una petición</a>
+        }
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          @if (auth.isLoggedIn()) {
+            <li class="nav-item"><a class="nav-link" routerLink="/mispeticiones">Mis peticiones</a></li>
+            <li class="nav-item"><a class="nav-link" routerLink="/misfirmas">Mis peticiones firmadas</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Programa de socios/as</a></li>
+          }
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/peticiones"><i class="bi bi-search"></i> Buscar</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+          @if (auth.isLoggedIn()) {
+            <li class="nav-item d-none d-lg-block me-3">
+              <a routerLink="/peticiones/crear" class="btn btn-outline-danger">Inicia una petición</a>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                <img class="rounded-circle me-2" src="assets/imagenes/avatar.svg" alt="Profile" style="width: 35px; height: 35px; object-fit: cover;">
+                <span class="fw-bold">{{ auth.currentUser()?.name }}</span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-end navbar-dropdown">
+                <div class="dropdown-header">
+                  <p class="mb-1 mt-3 font-weight-semibold">{{ auth.currentUser()?.name }}</p>
+                  <p class="font-weight-light text-muted mb-0">{{ auth.currentUser()?.email }}</p>
+                </div>
+                <a class="dropdown-item" routerLink="/profile">Mi Perfil</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger" style="cursor: pointer;" (click)="auth.logout().subscribe()">Cerrar Sesión</a>
+              </div>
+            </li>
+          } @else {
+            <li class="nav-item"><a class="nav-link fs-6 m-2 link-dark fw-bold" routerLink="/login">Entrar</a></li>
+            <li class="nav-item"><a class="nav-link fs-6 m-2 link-dark" routerLink="/register">Registrarse</a></li>
+          }
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main class="py-5 bg-light" style="min-height: 80vh;">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="mt-auto footer pt-5 pb-5 bg-white border-top">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-3 col-md-6 px-4">
+        <h5>Acerca de</h5>
+        <ul class="nav flex-column">
+          <li class="nav-item"><a href="#" class="nav-link p-0 text-body-secondary">Sobre Change.org</a></li>
+          <li class="nav-item"><a href="#" class="nav-link p-0 text-body-secondary">Impacto</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6 px-4">
+        <h5>Comunidad</h5>
+        <ul class="nav flex-column">
+          <li class="nav-item"><a href="#" class="nav-link p-0 text-body-secondary">Prensa</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6 px-4">
+        <h5>Ayuda</h5>
+        <ul class="nav flex-column">
+          <li class="nav-item"><a href="#" class="nav-link p-0 text-body-secondary">Ayuda</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6 px-4">
+        <h5>Redes sociales</h5>
+        <ul class="nav flex-column">
+          <li class="nav-item"><a href="#" class="nav-link p-0 text-body-secondary">X</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="mt-4">
+    <div><strong> © 2025, Change.org, PBC </strong></div>
+  </div>
+</footer>

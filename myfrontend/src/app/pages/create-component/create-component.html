@@ -1,0 +1,101 @@
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      
+      <div class="card shadow border-0">
+        <div class="card-body p-5">
+          <h3 class="text-center mb-4 fw-bold">Iniciar una nueva petición</h3>
+          <p class="text-center text-muted mb-4">El cambio comienza con un primer paso.</p>
+
+          <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
+            
+            <div class="mb-3">
+              <label for="titulo" class="form-label fw-bold">Título de la petición</label>
+              <input 
+                id="titulo" 
+                type="text" 
+                class="form-control" 
+                formControlName="titulo" 
+                placeholder="¿Qué quieres conseguir?"
+                [class.is-invalid]="itemForm.get('titulo')?.invalid && itemForm.get('titulo')?.touched"
+              >
+              @if (itemForm.get('titulo')?.invalid && itemForm.get('titulo')?.touched) {
+                <div class="invalid-feedback">El título es obligatorio.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="categoria_id" class="form-label fw-bold">Categoría</label>
+              <select 
+                id="categoria_id" 
+                class="form-select" 
+                formControlName="categoria_id"
+                [class.is-invalid]="itemForm.get('categoria_id')?.invalid && itemForm.get('categoria_id')?.touched"
+              >
+                <option value="" disabled selected>Selecciona un tema...</option>
+                @for (cat of categorias; track cat.id) {
+                  <option [value]="cat.id">{{ cat.nombre }}</option>
+                }
+              </select>
+              <div class="invalid-feedback">Selecciona una categoría.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="destinatario" class="form-label fw-bold">Destinatario</label>
+              <input 
+                id="destinatario" 
+                type="text" 
+                class="form-control" 
+                formControlName="destinatario" 
+                placeholder="¿A quién va dirigida? (Ej: Alcalde de...)"
+                [class.is-invalid]="itemForm.get('destinatario')?.invalid && itemForm.get('destinatario')?.touched"
+              >
+              <div class="invalid-feedback">El destinatario es obligatorio.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="descripcion" class="form-label fw-bold">Descripción</label>
+              <textarea 
+                id="descripcion" 
+                class="form-control" 
+                rows="5" 
+                formControlName="descripcion" 
+                placeholder="Explica el problema y la solución..."
+                [class.is-invalid]="itemForm.get('descripcion')?.invalid && itemForm.get('descripcion')?.touched"
+              ></textarea>
+              <div class="invalid-feedback">La descripción es obligatoria.</div>
+            </div>
+
+            <div class="mb-4">
+              <label for="file" class="form-label fw-bold">Imagen destacada</label>
+              <input 
+                id="file" 
+                type="file" 
+                class="form-control" 
+                (change)="onFileSelected($event)"
+                accept="image/*"
+                [class.is-invalid]="itemForm.get('file')?.invalid && itemForm.get('file')?.touched"
+              >
+              <div class="form-text">Sube una imagen que represente tu causa (JPG, PNG).</div>
+              <div class="invalid-feedback">Debes subir una imagen.</div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-danger btn-lg" [disabled]="itemForm.invalid || loading()">
+                @if (loading()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Creando...
+                } @else {
+                  Crear Petición
+                }
+              </button>
+              <a routerLink="/peticiones" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

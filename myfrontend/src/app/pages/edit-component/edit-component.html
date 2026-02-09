@@ -1,0 +1,91 @@
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      
+      <div class="card shadow border-0">
+        <div class="card-body p-5">
+          <h3 class="text-center mb-4 fw-bold">Editar Petición</h3>
+
+          <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
+            
+            <div class="mb-3">
+              <label for="titulo" class="form-label fw-bold">Título</label>
+              <input 
+                id="titulo" 
+                type="text" 
+                class="form-control" 
+                formControlName="titulo"
+                [class.is-invalid]="itemForm.get('titulo')?.invalid && itemForm.get('titulo')?.touched"
+              >
+            </div>
+
+            <div class="mb-3">
+              <label for="categoria_id" class="form-label fw-bold">Categoría</label>
+              <select 
+                id="categoria_id" 
+                class="form-select" 
+                formControlName="categoria_id"
+              >
+                @for (cat of categorias; track cat.id) {
+                  <option [value]="cat.id">{{ cat.nombre }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="destinatario" class="form-label fw-bold">Destinatario</label>
+              <input 
+                id="destinatario" 
+                type="text" 
+                class="form-control" 
+                formControlName="destinatario"
+              >
+            </div>
+
+            <div class="mb-3">
+              <label for="descripcion" class="form-label fw-bold">Descripción</label>
+              <textarea 
+                id="descripcion" 
+                class="form-control" 
+                rows="5" 
+                formControlName="descripcion"
+              ></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold d-block">Imagen destacada</label>
+              
+              <div class="mb-2">
+                <p class="small text-muted mb-1">Imagen actual:</p>
+                <img [src]="getImagenUrl()" alt="Imagen actual" class="img-thumbnail" style="height: 150px; object-fit: cover;">
+              </div>
+
+              <label for="file" class="form-label small text-muted">Cambiar imagen (Opcional)</label>
+              <input 
+                id="file" 
+                type="file" 
+                class="form-control" 
+                (change)="onFileSelected($event)"
+                accept="image/*"
+              >
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg" [disabled]="itemForm.invalid || loading()">
+                @if (loading()) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Guardando...
+                } @else {
+                  Guardar Cambios
+                }
+              </button>
+              <a [routerLink]="['/peticiones', id()]" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
