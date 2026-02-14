@@ -45,22 +45,22 @@ class PetitionController extends Controller
         }
     }
 
-    /**
-     * LIST MINE: Listar mis peticiones
-     */
-    public function listMine()
-    {
-        try {
-            $user = Auth::user(); // Obtenemos usuario desde el Token JWT
-            $petitions = Petition::where('user_id', $user->id)
-                ->with(['user','category', 'files'])
-                ->get();
-
-            return $this->sendResponse($petitions, 'Tus peticiones recuperadas con exito.');
-        } catch (Exception $e) {
-            return $this->sendError('Error al recuperar las peticiones',[$e->getMessage(), $e->getCode()]);
-        }
-    }
+//    /**
+//     * LIST MINE: Listar mis peticiones
+//     */
+//    public function listMine()
+//    {
+//        try {
+//            $user = Auth::user(); // Obtenemos usuario desde el Token JWT
+//            $petitions = Petition::where('user_id', $user->id)
+//                ->with(['user','category', 'files'])
+//                ->get();
+//
+//            return $this->sendResponse($petitions, 'Tus peticiones recuperadas con exito.');
+//        } catch (Exception $e) {
+//            return $this->sendError('Error al recuperar las peticiones',[$e->getMessage(), $e->getCode()]);
+//        }
+//    }
 
     /**
      * SHOW: Ver una petición
@@ -100,10 +100,12 @@ class PetitionController extends Controller
 
                 // 3. Creamos la petición
                 $petition = new Petition($request->all());
+                $petition->image = $path;
                 $petition->user_id = Auth::id();
                 $petition->signeds = 0;
                 $petition->status  = 'pending';
                 $petition->save();
+                $petition->users()->attach(Auth::id());
 
                 // 4. Guardamos el registro del archivo en la tabla 'files'
                 $petition->files()->create([
@@ -129,13 +131,33 @@ class PetitionController extends Controller
         try {
             $petition = Petition::findOrFail($id);
 
-            // Validar que el usuario del token es el dueño
-            if ($petition->user_id != Auth::id()) {
+            if ($request->user()->cannot('update', $petition)) {
                 return $this->sendError('No autorizado', [], 403);
             }
 
-            $petition->update($request->all());
-            return $this->sendResponse($petition, 'Peticion actualizada con exito.');
+            $petition->update($request->only(['title', 'description', 'destinatary','category_id']));
+
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $cleanName = str_replace(' ', '_', $file->getClientOriginalName());
+                $finalName = time() . '_' . $cleanName;
+                $path = $file->storeAs('petitions', $finalName, 'public');
+                $fileRecord = $petition->files()->first();
+
+                if ($fileRecord) {
+                    $fileRecord->update([
+                    'name' => $file->getClientOriginalName(), // Nombre para mostrar bonito
+                    'file_path' => $path // Ruta física: "peticiones/175849_f4.jpg"
+                    ]);
+                } else {
+                $petition->files()->create([
+                'name' => $file->getClientOriginalName(),
+                'file_path' => $path
+                ]);
+                }
+            }
+            return $this->sendResponse($petition->load('files'),'Peticion actualizada con exito');
+
 
         } catch (Exception $e) {
             return $this->sendError('Error al actualizar', [$e->getMessage()], 500);
@@ -218,4 +240,6 @@ class PetitionController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+
 }

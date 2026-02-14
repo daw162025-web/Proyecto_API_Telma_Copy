@@ -1,65 +1,85 @@
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
-import { PetitionService } from '../../petition.service';
-import { Petition } from '../../models/petition';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe, CommonModule } from '@angular/common';
-import { AuthService } from '../../auth/auth.service';
+import { PetitionService } from '../../petition.service'; // Ajusta la ruta
+import { AuthService } from '../../auth/auth.service';     // Ajusta la ruta
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-show-component',
   standalone: true,
-  imports: [RouterLink, DatePipe, CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './show-component.html',
-  styleUrls: ['./show-component.css'],
+  styleUrl: './show-component.css'
 })
-
 export class ShowComponent implements OnInit {
-  private peticionService = inject(PetitionService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private petitionService = inject(PetitionService);
   private authService = inject(AuthService);
-  peticion = signal<Petition | null>(null);
+
+  petition = signal<any>(null);
   loading = signal(true);
-  public currentUserId: number | null = null;
-  readonly API_STORAGE = 'http://localhost:8000/storage/';
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.cargarPeticion(Number(id));
-    }
-    this.authService.user$.subscribe((user) => {
-      this.currentUserId = user ? user.id : null;
-    });
-    this.authService.loadUserIfNeeded();
-  }
-  cargarPeticion(id: number) {
-    this.peticionService.getById(id).subscribe({
-      next: (res: any) => {
-        this.peticion.set(res.data ? res.data : res);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.loading.set(false);
-      },
-    });
-  }
-  getImagenUrl(): string {
-    const pet = this.peticion();
-    if (pet && pet.files && pet.files.length > 0) {
-      // Aquí defines la variable 'path'
-      const path = pet.files[0].file_path.replace('storage/', '');
+
+  // Obtenemos el ID del usuario logueado desde el signal del AuthService
+  currentUserId = computed(() => this.authService.currentUser()?.id);
+
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      // CONVERSIÓN A NÚMERO PARA EVITAR EL ERROR DE TIPADO
+      const id = Number(idParam); 
       
-      // CORRECCIÓN: Usamos 'path' aquí
-      return `${this.API_STORAGE}${path}`;
+      this.petitionService.getById(id).subscribe({
+        next: (res: any) => {
+          console.log('LO QUE LLEGA DEL SERVICIO:', res); // <--- Mira esto en la consola (F12)
+          
+          // Si en la consola ves el objeto {id: 3, title: ...} directamente:
+          this.petition.set(res); 
+
+          // Si en la consola ves {data: {id: 3...}}:
+          // this.petition.set(res.data);
+          
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error(err);
+          this.loading.set(false);
+        }
+      });
     }
-    return 'assets/no-image.png';
   }
-  delete() {
-    const pet = this.peticion();
-    if (!pet?.id) return;
-    if (confirm('¿Eliminar petición?')) {
-      this.peticionService.delete(pet.id).subscribe(() => {
-        this.router.navigate(['/peticiones']);
+
+  // show-component.ts
+
+getImageUrl(): string {
+  const pet = this.petition();
+  if (!pet) return 'assets/imagenes/default-petition.png';
+
+  // 1. PRIORIDAD: Buscar en la tabla 'files' (es la más fiable tras tu edición)
+  if (pet.files && pet.files.length > 0) {
+    // Tomamos el ÚLTIMO archivo subido (el más reciente)
+    const lastFile = pet.files[pet.files.length - 1];
+    return `http://localhost:8000/storage/${lastFile.file_path}`;
+  }
+
+  // 2. Fallback: Usar la columna 'image' de la tabla petitions
+  if (pet.image) {
+    return `http://localhost:8000/storage/${pet.image}`;
+  }
+
+  // 3. Si no hay nada, imagen por defecto
+  return 'assets/imagenes/default-petition.png';
+}
+
+  delete(): void {
+    if (confirm('¿Estás seguro de que deseas eliminar esta petición?')) {
+      this.petitionService.delete(this.petition().id).subscribe({
+        next: () => {
+          alert('Petición eliminada correctamente');
+          this.router.navigate(['/petitions']);
+        },
+        error: (err) => alert('No se pudo eliminar la petición')
       });
     }
   }

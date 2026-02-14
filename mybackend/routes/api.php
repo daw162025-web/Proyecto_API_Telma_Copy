@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -6,27 +8,32 @@ use App\Http\Controllers\PetitionController;
 
 Route::post('login', [AuthController::class, 'login'])->name('login');
 Route::post('register', [AuthController::class, 'register']);
-Route::middleware('api')->post('refresh', [AuthController::class, 'refresh']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
-    // Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
-
+     Route::post('refresh', [AuthController::class, 'refresh']);
 });
 
 // RUTAS PÚBLICAS DE PETICIONES
 Route::get('petitions', [PetitionController::class, 'index']); // Listar todas
-Route::get('petitions/{id}', [PetitionController::class, 'show']); // Ver una
+Route::get('petitions/{id}', [PetitionController::class, 'show']); // Ver detalle
+
+Route::get('categories', [CategoryController::class, 'index']);
 
 // RUTAS PROTEGIDAS DE PETICIONES (auth:api)
 Route::middleware('auth:api')->group(function () {
-    Route::post('petitions', [PetitionController::class, 'store']); // Crear
-    Route::get('mypetitions', [PetitionController::class, 'listMine']); // Mis peticiones
-    Route::put('petitions/{id}', [PetitionController::class, 'update']); // Editar
-    Route::delete('petitions/{id}', [PetitionController::class, 'destroy']); // Borrar
 
-    Route::put('petitions/sign/{id}', [PetitionController::class, 'sign']);
-    // Ruta para cambiar estado (admin)
-    Route::put('petitions/status/{id}', [PetitionController::class, 'changeStatus']);
+    // Crear (POST)
+    Route::post('petitions', [PetitionController::class, 'store']);
+
+    // Actualizar (PUT) - Laravel detecta el _method: PUT que envía Angular
+    Route::put('petitions/{id}', [PetitionController::class, 'update']);
+
+    // Borrar (DELETE)
+    Route::delete('petitions/{id}', [PetitionController::class, 'destroy']);
+
+    // Firmar (POST) - Importante: Cambiado a POST para coincidir con el PDF y Angular
+    Route::post('petitions/sign/{id}', [PetitionController::class, 'sign']);
+
 });

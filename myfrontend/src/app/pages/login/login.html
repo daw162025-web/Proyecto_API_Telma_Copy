@@ -21,9 +21,15 @@
         </div>
 
         <div class="d-grid gap-2 mt-4">
-          <button type="submit" class="btn btn-danger btn-lg block">Inicia sesión</button>
+          <button type="submit" class="btn btn-danger btn-lg block" [disabled]="auth.loading() || loading()">
+            @if (auth.loading() || loading()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Iniciando sesión...
+            } @else {
+              Inicia sesión
+            }
+          </button>
         </div>
-
         <hr class="my-4">
 
         <div class="text-center">

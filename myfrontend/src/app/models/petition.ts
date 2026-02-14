@@ -1,8 +1,8 @@
 import { PetitionFile } from './petition-file';
-export interface Categoria {
+export interface Category {
   id: number;
-  nombre: string;
-  descripcion?: string;
+  name: string;
+  description?: string;
 }
 export interface User {
   id: number;
@@ -11,17 +11,17 @@ export interface User {
 }
 export interface Petition {
   id?: number;
-  titulo: string;
-  descripcion: string;
-  destinatario: string;
+  title: string;
+  description: string;
+  destinatary: string;
   user_id?: number;
-  categoria_id?: number;
-  firmantes?: number;
-  estado?: string;
+  category_id?: number;
+  signeds?: number;
+  status?: string;
   created_at?: Date;
   // Array de objetos PeticionFile
   files?: PetitionFile[];
   // Relaciones opcionales
-  categoria?: Categoria;
+  category?: Category;
   user?: User;
 }

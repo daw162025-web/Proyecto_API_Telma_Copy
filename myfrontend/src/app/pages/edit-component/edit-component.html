@@ -1,91 +1,61 @@
-<div class="container mt-5 mb-5">
+<div class="container mt-5">
   <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      
-      <div class="card shadow border-0">
-        <div class="card-body p-5">
-          <h3 class="text-center mb-4 fw-bold">Editar Petición</h3>
-
-          <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+          <h3 class="mb-0">Editar Petición</h3>
+        </div>
+        <div class="card-body">
+          
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
             
             <div class="mb-3">
-              <label for="titulo" class="form-label fw-bold">Título</label>
-              <input 
-                id="titulo" 
-                type="text" 
-                class="form-control" 
-                formControlName="titulo"
-                [class.is-invalid]="itemForm.get('titulo')?.invalid && itemForm.get('titulo')?.touched"
-              >
+              <label for="title" class="form-label">Título de la petición</label>
+              <input type="text" id="title" class="form-control" formControlName="title">
             </div>
 
             <div class="mb-3">
-              <label for="categoria_id" class="form-label fw-bold">Categoría</label>
-              <select 
-                id="categoria_id" 
-                class="form-select" 
-                formControlName="categoria_id"
-              >
-                @for (cat of categorias; track cat.id) {
-                  <option [value]="cat.id">{{ cat.nombre }}</option>
+              <label class="form-label">Categoría</label>
+              <select class="form-select" formControlName="category_id">
+                @for (cat of categories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
                 }
               </select>
             </div>
 
             <div class="mb-3">
-              <label for="destinatario" class="form-label fw-bold">Destinatario</label>
-              <input 
-                id="destinatario" 
-                type="text" 
-                class="form-control" 
-                formControlName="destinatario"
-              >
+              <label class="form-label">Destinatario</label>
+              <input type="text" class="form-control" formControlName="destinatary">
             </div>
 
             <div class="mb-3">
-              <label for="descripcion" class="form-label fw-bold">Descripción</label>
-              <textarea 
-                id="descripcion" 
-                class="form-control" 
-                rows="5" 
-                formControlName="descripcion"
-              ></textarea>
+              <label class="form-label">Descripción</label>
+              <textarea class="form-control" rows="5" formControlName="description"></textarea>
             </div>
 
             <div class="mb-4">
-              <label class="form-label fw-bold d-block">Imagen destacada</label>
+              <label class="form-label">Imagen (Opcional)</label>
+              <input type="file" class="form-control" (change)="onFileChange($event)" accept="image/*">
               
-              <div class="mb-2">
-                <p class="small text-muted mb-1">Imagen actual:</p>
-                <img [src]="getImagenUrl()" alt="Imagen actual" class="img-thumbnail" style="height: 150px; object-fit: cover;">
-              </div>
-
-              <label for="file" class="form-label small text-muted">Cambiar imagen (Opcional)</label>
-              <input 
-                id="file" 
-                type="file" 
-                class="form-control" 
-                (change)="onFileSelected($event)"
-                accept="image/*"
-              >
+              @if (currentImage()) {
+                <div class="mt-2">
+                  <small class="text-muted">Imagen actual:</small><br>
+                  <img [src]="currentImage()" alt="Actual" class="img-thumbnail" style="max-height: 150px;">
+                </div>
+              }
             </div>
 
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary btn-lg" [disabled]="itemForm.invalid || loading()">
-                @if (loading()) {
-                  <span class="spinner-border spinner-border-sm me-2"></span>
-                  Guardando...
-                } @else {
-                  Guardar Cambios
-                }
+            <div class="d-flex justify-content-between">
+              <a [routerLink]="['/petitions', petitionId]" class="btn btn-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-warning" [disabled]="form.invalid">
+                Actualizar Petición
               </button>
-              <a [routerLink]="['/peticiones', id()]" class="btn btn-outline-secondary">Cancelar</a>
             </div>
 
           </form>
+
         </div>
       </div>
-
     </div>
   </div>
 </div>

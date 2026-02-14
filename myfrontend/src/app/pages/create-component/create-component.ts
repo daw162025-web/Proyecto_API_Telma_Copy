@@ -13,29 +13,23 @@ import { CommonModule } from '@angular/common';
 })
 export class CreateComponent {
   private fb = inject(FormBuilder);
-  private peticionService = inject(PetitionService);
+  public petitionService = inject(PetitionService);
   private router = inject(Router);
 
   loading = signal(false);
   fileToUpload: File | null = null;
 
-  // Lista temporal de categorías para el select
-  // (En el futuro podrías cargarlas desde un CategoryService)
-  categorias = [
-    { id: 1, nombre: 'Naturaleza' },
-    { id: 2, nombre: 'Derechos Humanos' },
-    { id: 3, nombre: 'Educación' },
-    { id: 4, nombre: 'Salud' },
-    { id: 5, nombre: 'Justicia Económica' }
-  ];
-
   itemForm = this.fb.group({
-    titulo: ['', [Validators.required]],
-    descripcion: ['', [Validators.required]],
-    destinatario: ['', [Validators.required]],
-    categoria_id: ['', [Validators.required]],
+    title: ['', [Validators.required]],
+    description: ['', [Validators.required]],
+    destinatary: ['', [Validators.required]],
+    category_id: ['', [Validators.required]],
     file: [null, [Validators.required]] // Control para validación visual
   });
+
+  ngOnInit(): void {
+    this.petitionService.fetchCategories().subscribe();
+  }
 
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
@@ -51,16 +45,16 @@ export class CreateComponent {
       this.loading.set(true);
 
       const formData = new FormData();
-      formData.append('titulo', this.itemForm.value.titulo!);
-      formData.append('descripcion', this.itemForm.value.descripcion!);
-      formData.append('destinatario', this.itemForm.value.destinatario!);
-      formData.append('categoria_id', this.itemForm.value.categoria_id!);
+      formData.append('title', this.itemForm.value.title!);
+      formData.append('description', this.itemForm.value.description!);
+      formData.append('destinatary', this.itemForm.value.destinatary!);
+      formData.append('category_id', this.itemForm.value.category_id!);
       formData.append('file', this.fileToUpload);
 
-      this.peticionService.create(formData).subscribe({
+      this.petitionService.create(formData).subscribe({
         next: () => {
           this.loading.set(false);
-          this.router.navigate(['/peticiones']);
+          this.router.navigate(['/petitions']);
         },
         error: (err) => {
           console.error(err);

@@ -9,72 +9,82 @@ import { AuthService } from '../../auth/auth.service';
   selector: 'app-list-component',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './list-component.html', // Ojo: asegúrate del nombre del archivo
+  templateUrl: './list-component.html',
   styleUrl: './list-component.css',
 })
 export class ListComponent implements OnInit {
-  private peticionService = inject(PetitionService);
-  public authService = inject(AuthService);
+  // Services
+  private petitionService = inject(PetitionService);
+  public authService = inject(AuthService); // Public for HTML access
   private route = inject(ActivatedRoute);
 
-  public peticiones: Petition[] = [];
-  public allPeticiones: Petition[] = [];
-  public cargando: boolean = true;
+  // Data State (Renamed to English)
+  public petitions: Petition[] = [];
+  public allPetitions: Petition[] = [];
 
   ngOnInit(): void {
-    this.cargarPeticiones();
+    this.petitionService.fetchCategories().subscribe();
+    // Primero nos suscribimos a los cambios de la URL
+    this.route.queryParams.subscribe((params) => {
+      this.loadPetitions(params['category_id']);
+    });
+  }
+  
+  getCategoryName(id: number): string {
+    const categories = this.petitionService.allCategories();
+    const found = categories.find(c => c.id === id);
+    return found ? found.name : 'Sin categoría';
   }
 
-  cargarPeticiones() {
-    this.cargando = true;
-    this.peticionService.fetchPetitions().subscribe({
+  loadPetitions(categoryId?: string) {
+    // 1. Usamos el Signal del servicio para que todo el sitio sepa que carga
+    this.authService.loading.set(true); 
+
+    this.petitionService.fetchPetitions().subscribe({
       next: (data: Petition[]) => {
-        this.allPeticiones = data;
-        this.peticiones = this.allPeticiones;
-
-        // Filtrado por parámetros de URL (Categoría)
-        this.route.queryParams.subscribe((params) => {
-          if (params['categoria_id']) { // Asumo que en la URL usas 'categoria_id'
-            // CORRECCIÓN: Usamos 'categoria_id' del modelo
-            this.peticiones = this.allPeticiones.filter(
-              (p) => p.categoria_id == params['categoria_id']
-            );
-          } else {
-            this.peticiones = this.allPeticiones;
-          }
-        });
-
-        this.cargando = false;
+        this.allPetitions = data;
+        this.petitions = categoryId 
+          ? this.allPetitions.filter(p => p.category_id == Number(categoryId)) 
+          : data;
+        
+        // 2. Apagamos el Signal
+        this.authService.loading.set(false); 
       },
       error: (err) => {
-        console.error('Error cargando peticiones', err);
-        this.cargando = false;
-      },
+        console.error('Error:', err);
+        // 3. ¡IMPORTANTE! Apagarlo también en caso de error
+        this.authService.loading.set(false); 
+      }
     });
   }
 
-  firmar(peticion: Petition) {
-    if (!peticion.id) return;
+  // Renamed firmar -> sign
+  sign(petition: Petition) {
+    if (!petition.id) return;
     
-    this.peticionService.firmar(peticion.id).subscribe({
+    // Asumo que en el servicio también cambiaste el método a 'sign', 
+    // si no, usa 'this.petitionService.firmar'
+    this.petitionService.sign(petition.id).subscribe({
       next: () => {
-        // CORRECCIÓN: Usamos 'firmantes' del modelo
-        peticion.firmantes = (peticion.firmantes || 0) + 1;
-        alert('Petición firmada con éxito');
+        // Usamos 'signatories' (o 'firmantes' si tu BD aún lo devuelve así)
+        petition.signeds = (petition.signeds || 0) + 1;
+        alert('Petition signed successfully');
       },
       error: (err) =>
-        alert('Error al firmar: ' + (err.error?.message || 'Error desconocido')),
+        alert('Error signing: ' + (err.error?.message || 'Unknown error')),
     });
   }
 
-  borrar(id: number) {
-    if (confirm('¿Estás seguro de querer borrar esta petición?')) {
-      this.peticionService.delete(id).subscribe({
+  // Renamed borrar -> delete
+  delete(id: number) {
+    if (confirm('Are you sure you want to delete this petition?')) {
+      this.petitionService.delete(id).subscribe({
         next: () => {
-          this.peticiones = this.peticiones.filter((p) => p.id !== id);
-          this.allPeticiones = this.allPeticiones.filter((p) => p.id !== id);
+          // Actualizamos los arrays locales eliminando la ID
+          this.petitions = this.petitions.filter((p) => p.id !== id);
+          this.allPetitions = this.allPetitions.filter((p) => p.id !== id);
         },
-        error: (err) => alert('No se pudo borrar la petición'),
+        error: (err) => alert('Could not delete petition'),
       });
     }
   }

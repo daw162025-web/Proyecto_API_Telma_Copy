@@ -1,6 +1,6 @@
 export interface PetitionFile {
   id: number;
   name: string;
-  peticione_id: number;
+  petition_id: number;
   file_path: string;
 }

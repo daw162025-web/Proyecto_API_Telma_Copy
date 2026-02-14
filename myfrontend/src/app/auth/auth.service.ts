@@ -1,75 +1,98 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, finalize, tap } from 'rxjs';
+import { BehaviorSubject, finalize, tap, of, Observable, catchError } from 'rxjs'; // Añadido 'of'
 import { LoginResponse, User } from './auth.model';
 import { Router } from '@angular/router';
-@Injectable({ providedIn: 'root' })
 
+
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private api = 'http://localhost:8000/api';
   private userSubject = new BehaviorSubject<User | null>(null);
   private router = inject(Router);
 
-  // 1. SIGNAL: Estado reactivo para el Navbar.
-  // Se inicializa comprobando si ya existe el token.
+  // --- SIGNALS ---
+  currentUser = signal<any>(JSON.parse(localStorage.getItem('user_data') || 'null'));
   isLoggedIn = signal<boolean>(!!localStorage.getItem('access_token'));
+  loading = signal<boolean>(false);
 
   user$ = this.userSubject.asObservable();
-  currentUser = signal<any>(null);
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    const token = localStorage.getItem('access_token');
+    const savedUser = localStorage.getItem('user_data');
 
-  login(credentials: { email: string; password: string }) {
-    return this.http
-      .post<LoginResponse>(`${this.api}/login`, credentials)
-      .pipe(tap((res) => this.storeTokens(res)));
-  }
+    if (token) {
+      this.isLoggedIn.set(true); 
+    }
 
-  register(data: { name: string; email: string; password: string }) {
-    return this.http.post(`${this.api}/register`, data);
-  }
-
-  logout() {
-    // Hacemos la petición al backend para invalidar el token allí
-    return this.http.post(`${this.api}/logout`, {}).pipe(
-      // 'finalize' se ejecuta SIEMPRE: cuando termina bien (next) O cuando falla (error)
-      finalize(() => {
-        this.limpiarSesionLocal();
-      }),
-    );
-  }
-
-  getProfile() {
-    return this.http.get<User>(`${this.api}/me`).pipe(tap((user) => this.userSubject.next(user)));
-  }
-
-  isAuthenticated(): boolean {
-    return !!this.getAccessToken();
-  }
-
-  private storeTokens(res: LoginResponse) {
-    console.log('LO QUE LLEGA DEL SERVIDOR:', res);
-    localStorage.setItem('access_token', res.access_token);
-    // 2. ACTUALIZACIÓN: Avisamos al signal de que ya estamos dentro
-    this.isLoggedIn.set(true);
-    // 2. Guardar Usuario (Ahora sí viene en 'res.user')
-    if (res.user) {
-      this.currentUser.set(res.user);
-      // Guardamos en localStorage para que al pulsar F5 no se olvide
-      localStorage.setItem('user_data', JSON.stringify(res.user));
+    if (savedUser) {
+      this.currentUser.set(JSON.parse(savedUser));
     }
   }
 
-  private limpiarSesionLocal() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_data');
-    this.currentUser.set(null); // Esto actualiza el Navbar al instante
-    this.isLoggedIn.set(false);
-    this.router.navigate(['/login']); // Te manda al login
+  // --- LOGIN ---
+  login(credentials: any) {
+    this.loading.set(true);
+    return this.http.post<any>(`${this.api}/login`, credentials).pipe(
+      tap((res) => {
+        // A. Guardamos el token
+        localStorage.setItem('access_token', res.access_token);
+        
+        // B. Guardamos al usuario (CLAVE PARA EL SALUDO)
+        if (res.user) {
+          localStorage.setItem('user_data', JSON.stringify(res.user));
+          this.currentUser.set(res.user);
+        }
+        
+        this.isLoggedIn.set(true);
+      }),
+      finalize(() => this.loading.set(false))
+    );
   }
 
+  // --- REGISTER ---
+  register(data: { name: string; email: string; password: string }) {
+    this.loading.set(true); // Ahora esto ya no dará error
+    return this.http.post(`${this.api}/register`, data).pipe(
+      finalize(() => this.loading.set(false))
+    );
+  }
+
+  // --- LOGOUT (Robustecido) ---
+  logout(): Observable<any> { 
+    const token = this.getAccessToken();
+
+    if (!token) {
+      this.limpiarSesionLocal();
+      return of(null); 
+    }
+
+    return this.http.post(`${this.api}/logout`, {}).pipe(
+      // Si el servidor da error (401), no pasa nada, seguimos adelante
+      catchError(() => of(null)), 
+      finalize(() => {
+        this.limpiarSesionLocal();
+      })
+    );
+  }
+
+  // --- UTILS ---
   getAccessToken() {
     return localStorage.getItem('access_token');
+  }
+
+  limpiarSesionLocal() {
+    // 1. Borramos datos del navegador
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_data'); // Borramos el usuario guardado
+    
+    // 2. Reseteamos los signals
+    this.isLoggedIn.set(false);
+    this.currentUser.set(null); // Adiós al saludo
+    
+    // 3. Navegamos al login
+    this.router.navigate(['/login']);
   }
 
   refreshToken() {
@@ -80,11 +103,21 @@ export class AuthService {
     );
   }
   
-  loadUserIfNeeded() {
+  getProfile() {
+    return this.http.get<User>(`${this.api}/me`).pipe(
+      tap((user) => this.userSubject.next(user))
+    );
+  }
+   loadUserIfNeeded() {
+
     if (this.getAccessToken() && !this.userSubject.value) {
+
       this.getProfile().subscribe({
+
         error: () => this.limpiarSesionLocal(),
+
       });
+
     }
   }
 }

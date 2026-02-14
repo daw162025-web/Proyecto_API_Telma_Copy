@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Petition extends Model
 {
-    protected $fillable = ['title', 'description','destinatary','signeds','status', 'category_id', 'user_id'];
+    protected $fillable = ['title', 'description','destinatary','signeds','status', 'category_id', 'user_id', 'image'];
 
     public function category(){
         return $this->belongsTo(Category::class);
@@ -14,6 +14,10 @@ class Petition extends Model
 
     public function user(){
         return $this->belongsTo(User::class);
+    }
+
+    public function users(){
+        return $this->belongsToMany(User::class, 'petition_user');
     }
     public function userSigners(){
         return $this->belongsToMany(User::class, table: 'petition_user');

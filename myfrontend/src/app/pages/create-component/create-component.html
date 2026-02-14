@@ -10,58 +10,56 @@
           <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
             
             <div class="mb-3">
-              <label for="titulo" class="form-label fw-bold">Título de la petición</label>
+              <label for="title" class="form-label fw-bold">Título de la petición</label>
               <input 
-                id="titulo" 
+                id="title" 
                 type="text" 
                 class="form-control" 
-                formControlName="titulo" 
+                formControlName="title" 
                 placeholder="¿Qué quieres conseguir?"
-                [class.is-invalid]="itemForm.get('titulo')?.invalid && itemForm.get('titulo')?.touched"
+                [class.is-invalid]="itemForm.get('title')?.invalid && itemForm.get('title')?.touched"
               >
-              @if (itemForm.get('titulo')?.invalid && itemForm.get('titulo')?.touched) {
+              @if (itemForm.get('title')?.invalid && itemForm.get('title')?.touched) {
                 <div class="invalid-feedback">El título es obligatorio.</div>
               }
             </div>
 
             <div class="mb-3">
-              <label for="categoria_id" class="form-label fw-bold">Categoría</label>
-              <select 
-                id="categoria_id" 
-                class="form-select" 
-                formControlName="categoria_id"
-                [class.is-invalid]="itemForm.get('categoria_id')?.invalid && itemForm.get('categoria_id')?.touched"
-              >
-                <option value="" disabled selected>Selecciona un tema...</option>
-                @for (cat of categorias; track cat.id) {
-                  <option [value]="cat.id">{{ cat.nombre }}</option>
-                }
-              </select>
-              <div class="invalid-feedback">Selecciona una categoría.</div>
+              <label for="category_id" class="form-label text-muted">Categoría</label>
+              <select formControlName="category_id" class="form-select">
+                  <option value="" disabled>Selecciona categoría</option>
+                  @for (cat of petitionService.allCategories(); track cat.id) {
+                    <option [value]="cat.id">{{ cat.name }}</option>
+                  }
+                </select>
+              
+              @if (itemForm.get('category_id')?.touched && itemForm.get('category_id')?.invalid) {
+                <small class="text-danger">Debes seleccionar una categoría.</small>
+              }
             </div>
 
             <div class="mb-3">
-              <label for="destinatario" class="form-label fw-bold">Destinatario</label>
+              <label for="destinatary" class="form-label fw-bold">Destinatario</label>
               <input 
-                id="destinatario" 
+                id="destinatary" 
                 type="text" 
                 class="form-control" 
-                formControlName="destinatario" 
+                formControlName="destinatary" 
                 placeholder="¿A quién va dirigida? (Ej: Alcalde de...)"
-                [class.is-invalid]="itemForm.get('destinatario')?.invalid && itemForm.get('destinatario')?.touched"
+                [class.is-invalid]="itemForm.get('destinatary')?.invalid && itemForm.get('destinatary')?.touched"
               >
               <div class="invalid-feedback">El destinatario es obligatorio.</div>
             </div>
 
             <div class="mb-3">
-              <label for="descripcion" class="form-label fw-bold">Descripción</label>
+              <label for="description" class="form-label fw-bold">Descripción</label>
               <textarea 
-                id="descripcion" 
+                id="description" 
                 class="form-control" 
                 rows="5" 
-                formControlName="descripcion" 
+                formControlName="description" 
                 placeholder="Explica el problema y la solución..."
-                [class.is-invalid]="itemForm.get('descripcion')?.invalid && itemForm.get('descripcion')?.touched"
+                [class.is-invalid]="itemForm.get('description')?.invalid && itemForm.get('description')?.touched"
               ></textarea>
               <div class="invalid-feedback">La descripción es obligatoria.</div>
             </div>
@@ -89,7 +87,7 @@
                   Crear Petición
                 }
               </button>
-              <a routerLink="/peticiones" class="btn btn-outline-secondary">Cancelar</a>
+              <a routerLink="/petitions" class="btn btn-outline-secondary">Cancelar</a>
             </div>
 
           </form>
