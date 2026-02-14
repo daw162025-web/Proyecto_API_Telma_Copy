@@ -1,0 +1,89 @@
+<header>
+  <nav class="navbar shadow-sm navbar-expand-lg bg-white sticky-top">
+    <div class="container px-3">
+      <a routerLink="/" class="navbar-brand">
+        <img src="assets/imagenes/Change.org_logo.svg.png" style="width: 100px;" alt="Change.org" class="navbar-brand-custom">
+      </a>
+
+      <div class="d-flex align-items-center d-lg-none">
+        @if (authService.isLoggedIn()) {
+          <a routerLink="/petitions/create" class="btn btn-danger me-2">Inicia una petición</a>
+        }
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navMain">
+        
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <!-- @if (authService.isLoggedIn()) {
+            <li class="nav-item"><a class="nav-link" routerLink="/mypetitions">Mis peticiones</a></li>
+            <li class="nav-item"><a class="nav-link" routerLink="/mysignatures">Mis peticiones firmadas</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Programa de socios/as</a></li>
+          } -->
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/petitions">Ver peticiones</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+          
+          @if (authService.isLoggedIn()) {
+            
+            <li class="nav-item d-none d-lg-block me-3">
+              <a routerLink="/petitions/create" class="btn btn-outline-danger rounded-pill px-4">
+                Inicia una petición
+              </a>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img class="rounded-circle me-2 border" 
+                    src="assets/imagenes/avatar.svg" 
+                    alt="Profile" 
+                    style="width: 35px; height: 35px; object-fit: cover;">
+                <span class="fw-bold text-dark">{{ authService.currentUser()?.name }}</span>
+              </a>
+              
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                
+                <li>
+                  <div class="dropdown-header text-center">
+                    <h6 class="mb-0 text-dark">{{ authService.currentUser()?.name }}</h6>
+                    <small class="text-muted">{{ authService.currentUser()?.email }}</small>
+                  </div>
+                </li>
+                
+                <li><hr class="dropdown-divider"></li>
+                
+                <!-- <li>
+                    <a class="dropdown-item" routerLink="/profile">
+                        <i class="bi bi-person me-2"></i> Mi Perfil
+                    </a>
+                </li> -->
+                
+                <li>
+                  <button (click)="onLogout()" class="dropdown-item text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i> Salir
+                  </button>
+                </li>
+              </ul>
+            </li>
+
+          } @else {
+            
+            <li class="nav-item">
+                <a class="nav-link fs-6 m-2 link-dark fw-bold" routerLink="/login">Entrar</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fs-6 m-2 link-dark" routerLink="/register">Registrarse</a>
+            </li>
+            
+          }
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
