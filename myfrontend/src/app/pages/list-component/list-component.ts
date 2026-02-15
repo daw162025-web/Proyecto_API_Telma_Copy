@@ -15,10 +15,9 @@ import { AuthService } from '../../auth/auth.service';
 export class ListComponent implements OnInit {
   // Services
   private petitionService = inject(PetitionService);
-  public authService = inject(AuthService); // Public for HTML access
+  public authService = inject(AuthService); 
   private route = inject(ActivatedRoute);
 
-  // Data State (Renamed to English)
   public petitions: Petition[] = [];
   public allPetitions: Petition[] = [];
 
@@ -37,7 +36,7 @@ export class ListComponent implements OnInit {
   }
 
   loadPetitions(categoryId?: string) {
-    // 1. Usamos el Signal del servicio para que todo el sitio sepa que carga
+    // Usamos el Signal del servicio para que todo el sitio sepa que carga
     this.authService.loading.set(true); 
 
     this.petitionService.fetchPetitions().subscribe({
@@ -47,26 +46,22 @@ export class ListComponent implements OnInit {
           ? this.allPetitions.filter(p => p.category_id == Number(categoryId)) 
           : data;
         
-        // 2. Apagamos el Signal
+        // Apagamos el Signal
         this.authService.loading.set(false); 
       },
       error: (err) => {
         console.error('Error:', err);
-        // 3. ¡IMPORTANTE! Apagarlo también en caso de error
+        //Apagarlo también en caso de error
         this.authService.loading.set(false); 
       }
     });
   }
 
-  // Renamed firmar -> sign
   sign(petition: Petition) {
     if (!petition.id) return;
-    
-    // Asumo que en el servicio también cambiaste el método a 'sign', 
-    // si no, usa 'this.petitionService.firmar'
+
     this.petitionService.sign(petition.id).subscribe({
       next: () => {
-        // Usamos 'signatories' (o 'firmantes' si tu BD aún lo devuelve así)
         petition.signeds = (petition.signeds || 0) + 1;
         alert('Petition signed successfully');
       },
@@ -75,7 +70,6 @@ export class ListComponent implements OnInit {
     });
   }
 
-  // Renamed borrar -> delete
   delete(id: number) {
     if (confirm('Are you sure you want to delete this petition?')) {
       this.petitionService.delete(id).subscribe({

@@ -1,6 +1,6 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from './auth.service'; // Ajusta la ruta si es necesario
+import { AuthService } from './auth.service'; 
 import { catchError, switchMap, throwError, of } from 'rxjs';
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
@@ -22,7 +22,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   return next(request).pipe(
     catchError((err: HttpErrorResponse) => {
       
-      // Si el error viene de una ruta de autenticación, NO hacemos nada raro
+      // Si el error viene de una ruta de autenticación
       if (isAuthRequest) {
         // Si falló el logout o el refresh, limpiamos los datos locales manualmente
         // para asegurar que el bucle se rompa aunque el servidor falle

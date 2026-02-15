@@ -2,8 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { PetitionService } from '../../petition.service'; // Ajusta la ruta
-
+import { PetitionService } from '../../petition.service'; 
 @Component({
   selector: 'app-edit-petition',
   standalone: true,
@@ -21,9 +20,9 @@ export class EditComponent implements OnInit {
   petitionId: number = 0;
   
   // Signals para gestionar el estado de la vista
-  categories = this.petitionService.allCategories; // Usamos las del servicio
+  categories = this.petitionService.allCategories; 
   loading = signal(false);
-  currentImage = signal<string | null>(null); // Para mostrar la foto actual
+  currentImage = signal<string | null>(null); 
   selectedFile: File | null = null;
 
   constructor() {
@@ -32,15 +31,15 @@ export class EditComponent implements OnInit {
       description: ['', Validators.required],
       destinatary: ['', Validators.required],
       category_id: ['', Validators.required],
-      file: [null] // El input file no necesita validación obligatoria al editar
+      file: [null] 
     });
   }
 
   ngOnInit(): void {
-    // 1. Cargamos las categorías si no están cargadas
+    // Cargamos las categorías si no están cargadas
     this.petitionService.fetchCategories().subscribe();
 
-    // 2. Obtenemos el ID y cargamos la petición
+    // Obtenemos el ID y cargamos la petición
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.petitionId = Number(idParam);
@@ -96,7 +95,6 @@ export class EditComponent implements OnInit {
       formData.append('file', this.selectedFile);
     }
 
-    // TRUCO LARAVEL: Para update con archivos, se usa POST y se añade esto:
     formData.append('_method', 'PUT');
 
     this.petitionService.update(this.petitionId, formData).subscribe({

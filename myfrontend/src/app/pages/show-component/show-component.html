@@ -24,7 +24,7 @@
         <div class="d-flex align-items-center mb-4 text-muted">
           <i class="bi bi-person-circle fs-4 me-2"></i>
           <div>
-            <small>Started by <strong>User {{ pet.user_id }}</strong></small>
+            <small>Started by <strong>{{ pet.user?.name }}</strong></small>
             <br>
             <small>Directed to: <strong>{{ pet.destinatary }}</strong></small>
           </div>

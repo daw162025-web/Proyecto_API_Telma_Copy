@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, finalize, tap, of, Observable, catchError } from 'rxjs'; // Añadido 'of'
+import { BehaviorSubject, finalize, tap, of, Observable, catchError } from 'rxjs'; 
 import { LoginResponse, User } from './auth.model';
 import { Router } from '@angular/router';
 
@@ -11,7 +11,7 @@ export class AuthService {
   private userSubject = new BehaviorSubject<User | null>(null);
   private router = inject(Router);
 
-  // --- SIGNALS ---
+  // SIGNALS
   currentUser = signal<any>(JSON.parse(localStorage.getItem('user_data') || 'null'));
   isLoggedIn = signal<boolean>(!!localStorage.getItem('access_token'));
   loading = signal<boolean>(false);
@@ -31,15 +31,15 @@ export class AuthService {
     }
   }
 
-  // --- LOGIN ---
+  // LOGIN
   login(credentials: any) {
     this.loading.set(true);
     return this.http.post<any>(`${this.api}/login`, credentials).pipe(
       tap((res) => {
-        // A. Guardamos el token
+        // Guardamos token
         localStorage.setItem('access_token', res.access_token);
         
-        // B. Guardamos al usuario (CLAVE PARA EL SALUDO)
+        // Guardamos  usuario
         if (res.user) {
           localStorage.setItem('user_data', JSON.stringify(res.user));
           this.currentUser.set(res.user);
@@ -51,15 +51,15 @@ export class AuthService {
     );
   }
 
-  // --- REGISTER ---
+  // REGISTER 
   register(data: { name: string; email: string; password: string }) {
-    this.loading.set(true); // Ahora esto ya no dará error
+    this.loading.set(true); 
     return this.http.post(`${this.api}/register`, data).pipe(
       finalize(() => this.loading.set(false))
     );
   }
 
-  // --- LOGOUT (Robustecido) ---
+  // LOGOUT
   logout(): Observable<any> { 
     const token = this.getAccessToken();
 
@@ -69,7 +69,6 @@ export class AuthService {
     }
 
     return this.http.post(`${this.api}/logout`, {}).pipe(
-      // Si el servidor da error (401), no pasa nada, seguimos adelante
       catchError(() => of(null)), 
       finalize(() => {
         this.limpiarSesionLocal();
@@ -77,21 +76,20 @@ export class AuthService {
     );
   }
 
-  // --- UTILS ---
   getAccessToken() {
     return localStorage.getItem('access_token');
   }
 
   limpiarSesionLocal() {
-    // 1. Borramos datos del navegador
+    // Borramos datos del navegador
     localStorage.removeItem('access_token');
-    localStorage.removeItem('user_data'); // Borramos el usuario guardado
+    localStorage.removeItem('user_data');
     
-    // 2. Reseteamos los signals
+    // Reseteamos los signals
     this.isLoggedIn.set(false);
-    this.currentUser.set(null); // Adiós al saludo
+    this.currentUser.set(null); 
     
-    // 3. Navegamos al login
+    // Navegamos al login
     this.router.navigate(['/login']);
   }
 

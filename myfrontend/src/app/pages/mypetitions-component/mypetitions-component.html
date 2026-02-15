@@ -1,0 +1,28 @@
+<div class="container mt-5">
+  <h2 class="mb-4">Mis Peticiones</h2>
+
+  @if (myPetitions().length === 0) {
+    <div class="alert alert-warning">
+      No has creado ninguna petición todavía. 
+      <a routerLink="/petitions/create" class="alert-link">¡Crea la primera!</a>
+    </div>
+  } @else {
+    <div class="row g-4">
+      @for (pet of myPetitions(); track pet.id) {
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+             <div class="card-body">
+               <h5 class="card-title">{{ pet.title }}</h5>
+               <p class="card-text text-muted">{{ pet.signeds }} firmas</p>
+               
+               <div class="d-flex gap-2 mt-3">
+                 <a [routerLink]="['/petitions', pet.id]" class="btn btn-outline-primary btn-sm flex-fill">Ver</a>
+                 <a [routerLink]="['/petitions/edit', pet.id]" class="btn btn-outline-warning btn-sm flex-fill">Editar</a>
+               </div>
+             </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

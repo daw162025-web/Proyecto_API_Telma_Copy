@@ -79,14 +79,12 @@ fetchCategories() {
     );
   }
 
-  delete(id: number) {
+  delete(id: number) {  
     return this.http.delete(`${this.API_URL}/${id}`).pipe(
       tap(() => {
-        // Eliminamos la petición de la lista local
-        this.#petitions.update((list) => list.filter((p) => p.id !== id));
-      }),
+          this.#petitions.update((petitions) => petitions.filter((p) => p.id !== id));
+      })
     );
-    
   }
   sign(id: number) {
     return this.http.post<{ success: boolean; message: string }>(

@@ -1,34 +1,22 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common'; 
 import { AuthService } from '../../auth/auth.service';
-import { Router } from '@angular/router';
-import { User } from '../../auth/auth.model';
 
 @Component({
-  selector: 'app‐profile',
+  selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DatePipe],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
-
 export class ProfileComponent implements OnInit {
-  user$: Observable<User | null>;
-  
-  constructor(
-    private auth: AuthService,
-    private router: Router,
-  ) {
-    // Enlazamos el observable del servicio directamente
-    this.user$ = this.auth.user$;
-  }
-  
+  public authService = inject(AuthService);
+  user = this.authService.currentUser; 
+
   ngOnInit(): void {
-    // Si recargamos página en /profile, esto asegura que se pidan los datos
-    this.auth.loadUserIfNeeded();
   }
-  logout() {
-    this.auth.logout().subscribe(() => this.router.navigate(['/login']));
+
+  onLogout() {
+    this.authService.logout().subscribe();
   }
 }

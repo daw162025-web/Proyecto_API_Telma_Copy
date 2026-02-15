@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Exception; // Para los try-catch
 
@@ -48,19 +49,19 @@ class PetitionController extends Controller
 //    /**
 //     * LIST MINE: Listar mis peticiones
 //     */
-//    public function listMine()
-//    {
-//        try {
-//            $user = Auth::user(); // Obtenemos usuario desde el Token JWT
-//            $petitions = Petition::where('user_id', $user->id)
-//                ->with(['user','category', 'files'])
-//                ->get();
-//
-//            return $this->sendResponse($petitions, 'Tus peticiones recuperadas con exito.');
-//        } catch (Exception $e) {
-//            return $this->sendError('Error al recuperar las peticiones',[$e->getMessage(), $e->getCode()]);
-//        }
-//    }
+    public function listMine()
+    {
+        try {
+            $user = Auth::user(); // Obtenemos usuario desde el Token JWT
+            $petitions = Petition::where('user_id', $user->id)
+                ->with(['user','category', 'files'])
+                ->get();
+
+            return $this->sendResponse($petitions, 'Tus peticiones recuperadas con exito.');
+        } catch (Exception $e) {
+            return $this->sendError('Error al recuperar las peticiones',[$e->getMessage(), $e->getCode()]);
+        }
+    }
 
     /**
      * SHOW: Ver una petición
@@ -167,32 +168,52 @@ class PetitionController extends Controller
     /**
      * DESTROY: Borrar
      */
-    public function destroy(Request $request, $id)
+    public function destroy($id)
     {
         try {
-            $petition = Petition::findOrFail($id);
+            // 1. Buscar la petición
+            $petition = \App\Models\Petition::find($id);
 
-            if ($petition->user_id != Auth::id()) {
-                return $this->sendError('No autorizado', [], 403);
+            if (!$petition) {
+                return response()->json(['message' => 'Petición no encontrada'], 404);
             }
 
-            if ($petition->signeds > 0) {
-                return $this->sendError('No puedes borrar una petición con firmas', [], 400);
+            // 2. Verificar que eres el dueño
+            if ($petition->user_id !== \Illuminate\Support\Facades\Auth::id()) {
+                return response()->json(['message' => 'No autorizado'], 403);
             }
 
-            // Borrar archivos
-            foreach ($petition->files as $file) {
-                $ruta = public_path('petitions/' . $file->file_path);
-                if (file_exists($ruta)) unlink($ruta);
-                $file->delete();
+            // --- ZONA DE LIMPIEZA (El arreglo) ---
+
+            // A. Borrar archivos adjuntos antiguos (Error anterior)
+            try {
+                \Illuminate\Support\Facades\DB::table('files')->where('petition_id', $id)->delete();
+            } catch (\Exception $e) {}
+
+            // B. Borrar las firmas en la tabla intermedia (EL ERROR ACTUAL)
+            try {
+                \Illuminate\Support\Facades\DB::table('petition_user')->where('petition_id', $id)->delete();
+            } catch (\Exception $e) {}
+
+            // -------------------------------------
+
+            // 3. Borrar la imagen del disco
+            if ($petition->image) {
+                try {
+                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($petition->image)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($petition->image);
+                    }
+                } catch (\Exception $e) {}
             }
 
+            // 4. Borrar la petición
             $petition->delete();
 
-            return $this->sendResponse(null, 'Petición eliminada con éxito');
+            return response()->json(['message' => 'Petición eliminada correctamente'], 200);
 
-        } catch (Exception $e) {
-            return $this->sendError('Error al eliminar', [$e->getMessage()], 500);
+        } catch (\Throwable $e) {
+            // Si sale otro error, te lo chivará aquí
+            return response()->json(['message' => 'Error eliminando', 'error' => $e->getMessage()], 500);
         }
     }
 

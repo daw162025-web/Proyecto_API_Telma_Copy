@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { PetitionService } from '../../petition.service'; // Asegúrate de la ruta
+import { PetitionService } from '../../petition.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-create-component',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, RouterLink],
-  templateUrl: './create-component.html', // Cuidado con el nombre del archivo
+  templateUrl: './create-component.html', 
   styleUrl: './create-component.css',
 })
 export class CreateComponent {
@@ -24,7 +24,7 @@ export class CreateComponent {
     description: ['', [Validators.required]],
     destinatary: ['', [Validators.required]],
     category_id: ['', [Validators.required]],
-    file: [null, [Validators.required]] // Control para validación visual
+    file: [null, [Validators.required]] 
   });
 
   ngOnInit(): void {

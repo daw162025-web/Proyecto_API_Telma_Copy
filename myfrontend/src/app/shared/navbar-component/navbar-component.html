@@ -25,6 +25,12 @@
           <li class="nav-item">
             <a class="nav-link" routerLink="/petitions">Ver peticiones</a>
           </li>
+
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/mypetitions">
+              Mis Peticiones
+            </a>
+          </li>
         </ul>
 
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
@@ -57,11 +63,11 @@
                 
                 <li><hr class="dropdown-divider"></li>
                 
-                <!-- <li>
+                <li>
                     <a class="dropdown-item" routerLink="/profile">
                         <i class="bi bi-person me-2"></i> Mi Perfil
                     </a>
-                </li> -->
+                </li>
                 
                 <li>
                   <button (click)="onLogout()" class="dropdown-item text-danger">

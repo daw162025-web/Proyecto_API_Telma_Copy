@@ -8,6 +8,7 @@ import { CreateComponent } from './pages/create-component/create-component';
 import { EditComponent } from './pages/edit-component/edit-component';
 import { ShowComponent } from './pages/show-component/show-component';
 import { HomeComponent } from './home/home-component/home-component';
+import { MyPetitionsComponent } from './pages/mypetitions-component/mypetitions-component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -18,8 +19,8 @@ export const routes: Routes = [
   { path: 'petitions/edit/:id', component: EditComponent, canActivate: [authGuard] },
   { path: 'petitions/:id', component: ShowComponent}, // Detalle público
 
-  // 4. Usuario Protegido
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'mypetitions', component: MyPetitionsComponent, canActivate: [authGuard] },
 
   // 5. Wildcard: Cualquier ruta desconocida redirige al login o home
   { path: '**', redirectTo: 'login' },

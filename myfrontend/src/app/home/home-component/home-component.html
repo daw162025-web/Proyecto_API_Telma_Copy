@@ -15,81 +15,9 @@
       <a routerLink="/petitions/create" class="btn btn-primary col-12 mb-3">Crear una petición</a>
       <a class="btn btn-petition col-12 mb-3 me-2">Comenzar con IA</a>
     </div>
-<div class="container mt-3 pb-5">
-  
-  @if (loading()) {
-    <div class="text-center py-5">
-      <div class="spinner-border text-danger" role="status"></div>
-      <p class="mt-2 text-muted">Cargando causas...</p>
-    </div>
-  } @else {
     
-    <div class="row g-4">
-      @for (pet of filteredPetitions(); track pet.id) {
-        <div class="col-md-6 col-lg-3">
-          
-          <a [routerLink]="['/petitions', pet.id]" class="text-decoration-none text-dark"> 
-            <div class="card feature-card h-100 shadow-sm border-0 card-hover">
-              <div class="p-3">
-                
-                <img [src]="getImgUrl(pet)" 
-                     class="img-fluid card-img-top rounded" 
-                     style="height: 180px; width: 100%; object-fit: cover;"
-                     alt="{{ pet.title }}">
-                
-                <div class="card-body px-0">
-                  <h5 class="card-title fw-bold fs-6 text-truncate" title="{{ pet.title }}">
-                    {{ pet.title }}
-                  </h5>
-                  
-                  <div class="progress my-2" style="height: 5px;">
-                    <div class="progress-bar bg-danger" [style.width.%]="((pet.signeds || 0) * 100) / 1000"></div>
-                  </div>
-
-                  <p class="card-text text-muted small">
-                    <strong>{{ pet.signeds || 0 }}</strong> firmas
-                  </p>
-                </div>
-              </div>
-            </div>
-          </a>
-
-        </div>
-      }
-
-      @if (filteredPetitions().length === 0) {
-        <div class="col-12 text-center py-5">
-          <div class="alert alert-light border">
-            <h4>🔍 No hay resultados</h4>
-            <p>Intenta buscar con otra palabra.</p>
-          </div>
-        </div>
-      }
     </div>
-  }
-</div>
-    <div id="carouselEx" class="carousel slide carousel-dark bg-transparent">
-      <div class="carousel-inner px-5 bg-transparent">
-        @for (story of successStories; track $index) {
-          <div class="carousel-item card text-center bg-transparent" [class.active]="$index === 0">
-            <img [src]="story.img" class="card-img-top rounded-circle mx-auto mt-3" style="width: 200px; height: 200px; object-fit: cover;" alt="Victoria">
-            <div class="card-body px-4 text-center bg-transparent">
-              <h5 class="card-title">🔴 ¡Victoria!</h5>
-              <h6>{{ story.firmas }} firmas</h6>
-            </div>
-          </div>
-        }
-      </div>
-      <button class="carousel-control-prev bg-transparent" type="button" data-bs-target="#carouselEx" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next bg-transparent" type="button" data-bs-target="#carouselEx" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
-    </div>
-  </div>
+
 
   <div class="d-none d-lg-block u-shape-wrapper bg-transparent mx-5">
     <div class="row justify-content-center">
@@ -139,18 +67,6 @@
             <a class="btn btn-outline-dark btn-lg px-4">Comenzar con IA</a>
           </div>
         </div>
-
-        <div class="row mt-5">
-          <div class="p-6 d-flex justify-content-center">
-            <div class="card cardU shadow-sm border-0">
-              <img [src]="successStories[2].img" class="card-img-top rounded-circle mx-auto mt-3" style="width: 200px; height: 200px; object-fit: cover;">
-              <div class="card-body card-bodyU mx-3 text-center">
-                <h5 class="card-title text-danger fw-bold">🔴 ¡Victoria!</h5>
-                <h6>{{ successStories[2].firmas }} firmas</h6>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="col-lg-3">
@@ -178,19 +94,79 @@
   </div>
 </div>
 
-<div class="container mt-5 mb-5 mb-lg-3">
-  <h2 class="mt-4" style="font-weight: 700;">Apoya causas que te importan</h2>
-  <h6 class="mt-4 text-muted">Encuentra peticiones que te conmuevan y alza tu voz para lograr el cambio.</h6>
-  <div class="d-flex flex-wrap gap-3 mt-4">
+<div class="container mt-5 mb-2">
+  <h2 class="mt-4 fs-4 fw-bold">Apoya causas que te importan</h2>
+  <div class="d-flex flex-wrap gap-2 mt-2">
     @for (cat of categories; track $index) {
-      <button class="btn btn-light border rounded-pill px-4 py-2 fw-bold text-secondary">
+      <button class="btn btn-light border rounded-pill px-3 py-1 fw-bold text-secondary small">
         {{ cat }} 🡢
       </button>
     }
   </div>
 </div>
 
+<div class="container mt-3 pb-4">
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-danger" role="status"></div>
+      <p class="mt-2 text-muted">Cargando...</p>
+    </div>
+  } @else {
+    <div class="row g-3">
+      @for (pet of filteredPetitions(); track pet.id) {
+        <div class="col-md-6 col-lg-3">
+          <a [routerLink]="['/petitions', pet.id]" class="text-decoration-none text-dark"> 
+            <div class="card h-100 shadow-sm border-0 card-hover">
+              <div class="p-3">
+                <img [src]="getImgUrl(pet)" 
+                     class="img-fluid card-img-top rounded" 
+                     style="height: 180px; width: 100%; object-fit: cover;"
+                     alt="{{ pet.title }}">
+                <div class="card-body px-0 pt-3">
+                  <h5 class="card-title fw-bold fs-6 text-truncate">{{ pet.title }}</h5>
+                  <div class="progress my-2" style="height: 5px;">
+                    <div class="progress-bar bg-danger" [style.width.%]="((pet.signeds || 0) * 100) / 1000"></div>
+                  </div>
+                  <p class="card-text text-muted small"><strong>{{ pet.signeds || 0 }}</strong> firmas</p>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      }
+      @if (filteredPetitions().length === 0) {
+        <div class="col-12 text-center py-5">
+          <p class="text-muted">No se encontraron resultados.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
 
+<div class="d-lg-none bg-transparent mb-5 pb-5">
+  <h4 class="text-center mb-3 text-muted">Historias de éxito</h4>
+  <div id="carouselEx" class="carousel slide carousel-dark bg-transparent">
+    <div class="carousel-inner px-5 bg-transparent">
+      @for (story of successStories; track $index) {
+        <div class="carousel-item card text-center bg-transparent border-0" [class.active]="$index === 0">
+          <img [src]="story.img" class="card-img-top rounded-circle mx-auto" style="width: 150px; height: 150px; object-fit: cover;" alt="Victoria">
+          <div class="card-body px-4 text-center bg-transparent">
+            <h5 class="card-title text-danger mt-2">🔴 ¡Victoria!</h5>
+            <small class="text-muted">{{ story.firmas }} firmas</small>
+          </div>
+        </div>
+      }
+    </div>
+    <button class="carousel-control-prev bg-transparent" type="button" data-bs-target="#carouselEx" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next bg-transparent" type="button" data-bs-target="#carouselEx" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+</div>
 
 <div class="container my-5">
   <div class="row align-items-center bg-white rounded shadow-sm p-4">
@@ -199,10 +175,7 @@
     </div>
     <div class="col-12 col-md-6">
       <div class="p-4">
-        <h2 style="font-weight: 700;">Apoya el cambio. Contribuye hoy.</h2>
-        <p class="mt-4 text-muted">
-          Change.org es una organización independiente, financiada únicamente por millones de usuarios como tú. 
-        </p>
+        <h2 style="font-weight: 700;">Apoya el cambio.</h2>
         <button class="btn btn-outline-danger btn-lg mt-3 rounded-pill px-5 fw-bold">Contribuir</button>
       </div>
     </div>

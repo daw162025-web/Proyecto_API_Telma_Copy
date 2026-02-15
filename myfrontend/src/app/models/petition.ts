@@ -19,9 +19,7 @@ export interface Petition {
   signeds?: number;
   status?: string;
   created_at?: Date;
-  // Array de objetos PeticionFile
   files?: PetitionFile[];
-  // Relaciones opcionales
   category?: Category;
   user?: User;
 }
