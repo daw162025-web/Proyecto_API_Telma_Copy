@@ -82,4 +82,21 @@ export class ListComponent implements OnInit {
       });
     }
   }
+
+  getImage(pet: any): string {
+    if (pet.files && pet.files.length > 0) { //cojemos el ultimo archivo (el mas reciente)
+      const lastFile = pet.files[pet.files.length - 1];
+      return `http://localhost:8000/storage/${lastFile.file_path}`;
+    }
+
+    if (pet.image) { //sino miramos la columna de image
+      return `http://localhost:8000/storage/${pet.image}`;
+    }
+
+    return 'assets/imagenes/petition1.jpg'; //por defecto
+  }
+
+  getNow() {
+    return Date.now();
+  }
 }

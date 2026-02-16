@@ -16,12 +16,11 @@ export class PetitionService {
   private readonly API_URL = 'http://localhost:8000/api/petitions';
   private readonly CATEGORIES_URL = 'http://localhost:8000/api/categories';
 
-  // ‐‐‐ State (Signals) ‐‐‐
-  // Store privado de petitions
+  // Signals
   #petitions = signal<Petition[]>([]);
   #categories = signal<Category[]>([]);
   loading = signal<boolean>(false);
-  // ‐‐‐ Selectors ‐‐‐
+
   // Exponemos las peticiones como solo lectura
   allPetitions = this.#petitions.asReadonly();
   allCategories = this.#categories.asReadonly();

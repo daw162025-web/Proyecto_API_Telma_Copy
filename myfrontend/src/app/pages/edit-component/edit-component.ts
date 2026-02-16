@@ -32,7 +32,7 @@ export class EditComponent implements OnInit {
       destinatary: ['', Validators.required],
       category_id: ['', Validators.required],
       file: [null] 
-    });
+    }); 
   }
 
   ngOnInit(): void {
@@ -59,9 +59,23 @@ export class EditComponent implements OnInit {
           category_id: petition.category_id
         });
 
+        let imagePath = null;
         // Guardamos la imagen actual para mostrarla
-        if (petition.image) {
-          this.currentImage.set('http://localhost:8000/storage/' + petition.image);
+        if (petition.files && petition.files.length > 0) {
+            const lastFile = petition.files[petition.files.length - 1];
+            imagePath = lastFile.file_path; 
+        } 
+        // Buscar en la columna simple
+        else if (petition.image) {
+            imagePath = petition.image;
+        }
+
+        //Si hemos encontrado imagen, actualizamos la señal para que se vea
+        if (imagePath) {
+            this.currentImage.set('http://localhost:8000/storage/' + imagePath);
+        } else {
+            // Resetear si no hay imagen
+            this.currentImage.set(null); 
         }
         
         this.loading.set(false);

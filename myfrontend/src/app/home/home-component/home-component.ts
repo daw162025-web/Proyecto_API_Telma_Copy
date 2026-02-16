@@ -65,11 +65,16 @@ export class HomeComponent implements OnInit {
   });
 }
 
-  // Helper para las imágenes de la bd
   getImgUrl(pet: any): string {
-    if (pet.image) {
+    if (pet.files && pet.files.length > 0) { //cojemos el ultimo archivo (el mas reciente)
+      const lastFile = pet.files[pet.files.length - 1];
+      return `http://localhost:8000/storage/${lastFile.file_path}`;
+    }
+
+    if (pet.image) { //sino miramos la columna de image
       return `http://localhost:8000/storage/${pet.image}`;
     }
-    return 'assets/imagenes/petition1.jpg'; // Imagen por defecto si no tienen
+
+    return 'assets/imagenes/petition1.jpg'; //por defecto
   }
 }

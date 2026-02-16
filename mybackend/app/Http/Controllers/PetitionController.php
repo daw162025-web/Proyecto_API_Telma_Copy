@@ -124,7 +124,7 @@ class PetitionController extends Controller
         }
     }
 
-    /**
+    /**cd myb
      * UPDATE: Actualizar
      */
     public function update(Request $request, $id)
@@ -136,29 +136,37 @@ class PetitionController extends Controller
                 return $this->sendError('No autorizado', [], 403);
             }
 
-            $petition->update($request->only(['title', 'description', 'destinatary','category_id']));
+            $petition->update($request->only(['title', 'description', 'destinatary', 'category_id']));
 
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $cleanName = str_replace(' ', '_', $file->getClientOriginalName());
                 $finalName = time() . '_' . $cleanName;
+
+                // Guardamos el archivo físicamente
                 $path = $file->storeAs('petitions', $finalName, 'public');
+
+                // Actualizamos también la columna 'image' de la tabla 'petitions'
+                $petition->image = $path;
+                $petition->save();
+
+                // Actualizamos o creamos el registro en la tabla 'files'
                 $fileRecord = $petition->files()->first();
 
                 if ($fileRecord) {
                     $fileRecord->update([
-                    'name' => $file->getClientOriginalName(), // Nombre para mostrar bonito
-                    'file_path' => $path // Ruta física: "peticiones/175849_f4.jpg"
+                        'name' => $file->getClientOriginalName(),
+                        'file_path' => $path
                     ]);
                 } else {
-                $petition->files()->create([
-                'name' => $file->getClientOriginalName(),
-                'file_path' => $path
-                ]);
+                    $petition->files()->create([
+                        'name' => $file->getClientOriginalName(),
+                        'file_path' => $path
+                    ]);
                 }
             }
-            return $this->sendResponse($petition->load('files'),'Peticion actualizada con exito');
 
+            return $this->sendResponse($petition->load('files'), 'Petición actualizada con éxito');
 
         } catch (Exception $e) {
             return $this->sendError('Error al actualizar', [$e->getMessage()], 500);
